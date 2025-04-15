@@ -23,29 +23,22 @@ STYLES = {
     "гопник": "Ты дерзкий, слегка хамоватый бот с улиц 90-х. Много сленга и понтов.",
     "дед": "Ты говоришь, как советский дед, ворчливый, но мудрый.",
 }
-
 user_styles = {}
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_styles[update.effective_user.id] = "default"
     await update.message.reply_text(
-        "Добро пожаловать в DeutschMeMeBot! Команды:
-"
-        "/talk — поболтать с ИИ
-"
-        "/setstyle — выбрать стиль
-"
-        "/guessnumber — угадай число
-"
-        "/rps — камень/ножницы/бумага
-"
-        "/quiz — мем-викторина
-"
-        "/truthorlie — правда или ложь
-"
-        "/insultme — оскорбление/комплимент
-"
-        "/advice — тупой совет дня",
+        "Добро пожаловать в DeutschMeMeBot! Команды:\n"
+        "/talk — поболтать с ИИ\n"
+        "/setstyle — выбрать стиль\n"
+        "/guessnumber — угадай число\n"
+        "/rps — камень/ножницы/бумага\n"
+        "/quiz — мем-викторина\n"
+        "/truthorlie — правда или ложь\n"
+        "/insultme — оскорбление/комплимент\n"
+        "/advice — тупой совет дня\n"
+        "/meme — сгенерировать текстовый мем\n"
+        "/tiktok — идея или фраза для TikTok",
     )
 
 async def set_style(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -74,69 +67,55 @@ async def gpt_response(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except:
         await update.message.reply_text("GPT завис. Попробуй позже.")
 
-async def guess_number(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    number = random.randint(1, 100)
-    context.user_data["secret_number"] = number
-    await update.message.reply_text("Я загадал число от 1 до 100. Попробуй угадать!")
+async def meme(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    шаблоны = [
+        "Когда {situation}, но ты {reaction}.",
+        "Не я: {normal}\nЯ: {weird}",
+        "{action}? Это что, я в 2020?",
+        "Если бы мемы платили, я был бы миллионером."
+    ]
+    слова = [
+        "работать на выходных", "улыбаешься через боль", "спишь по 3 часа",
+        "думаешь, что всё под контролем", "смотришь в потолок", "разговариваешь с холодильником",
+        "я программист", "я в 4 утра", "я в TikTok 6-й час подряд"
+    ]
+    текст = random.choice(шаблоны).format(
+        situation=random.choice(слова),
+        reaction=random.choice(слова),
+        normal=random.choice(слова),
+        weird=random.choice(слова),
+        action=random.choice(слова)
+    )
+    await update.message.reply_text(текст)
 
-async def handle_guess(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    if "secret_number" not in context.user_data:
-        return
-    try:
-        guess = int(update.message.text)
-        secret = context.user_data["secret_number"]
-        if guess < secret:
-            await update.message.reply_text("Больше.")
-        elif guess > secret:
-            await update.message.reply_text("Меньше.")
-        else:
-            await update.message.reply_text("ДА! Ты угадал!")
-            del context.user_data["secret_number"]
-    except ValueError:
-        pass
-
-async def rps(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(f"Я выбрал: {random.choice(['камень', 'ножницы', 'бумага'])}")
-
-async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Кто из них не мем?
-A) Шрек
-B) Гигачад
-C) Windows XP
-D) Бублик")
-
-async def truthorlie(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Правда или ложь: В Германии запрещено называть ребёнка Nutella.")
-
-async def insult(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(random.choice([
-        "Ты как Wi-Fi в автобусе — вроде есть, а вроде и нет.",
-        "Ты светишься как BIOS в тумане.",
-        "Ты не тупой — ты альтернативно умный."
-    ]))
-
-async def advice(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text(random.choice([
-        "Не можешь изменить мир — смени шторы.",
-        "Будь собой. Остальное — баги в системе.",
-        "Пиши глупости — вдруг это станет искусством."
-    ]))
+async def tiktok(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    идеи = [
+        "Сними ролик, где ты споришь с собой в зеркале.",
+        "Покажи, как выглядишь до и после фразы 'всё нормально'.",
+        "Сделай TikTok, где главный герой — твой будильник.",
+        "Переозвучь свой день в стиле Netflix-драмы."
+    ]
+    фразы = [
+        "Я не прокрастинирую, я на паузе жизни.",
+        "Ты либо сгорел, либо перегорел.",
+        "Этот TikTok был снят за счёт моей мотивации. RIP.",
+        "Главное — делать вид, что ты в контроле."
+    ]
+    if random.choice([True, False]):
+        await update.message.reply_text("**Идея для TikTok:**\n" + random.choice(идеи), parse_mode="Markdown")
+    else:
+        await update.message.reply_text("**Фраза для TikTok:**\n" + random.choice(фразы), parse_mode="Markdown")
 
 def build_app():
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("setstyle", set_style))
+    app.add_handler(CommandHandler("meme", meme))
+    app.add_handler(CommandHandler("tiktok", tiktok))
     app.add_handler(MessageHandler(filters.Regex("^(романтик|гопник|дед|default)$"), handle_style_choice))
-    app.add_handler(CommandHandler("guessnumber", guess_number))
-    app.add_handler(CommandHandler("rps", rps))
-    app.add_handler(CommandHandler("quiz", quiz))
-    app.add_handler(CommandHandler("truthorlie", truthorlie))
-    app.add_handler(CommandHandler("insultme", insult))
-    app.add_handler(CommandHandler("advice", advice))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_guess))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, gpt_response))
     return app
 
 if __name__ == '__main__':
-    app = build_app()
-    app.run_polling()
+    build_app().run_polling()
+    

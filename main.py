@@ -15,19 +15,16 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# Простой ответ на команду /start
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    await update.message.reply_text("Йо, ты подключился к DeutschMeMe ботy! Пиши /guess чтобы сыграть.")
+    await update.message.reply_text("Привет! Это DeutschMeMeBot. Напиши /guess чтобы сыграть в угадайку!")
 
-# Примитивная угадайка
 async def guess(update: Update, context: ContextTypes.DEFAULT_TYPE):
     number = random.randint(1, 5)
-    await update.message.reply_text(f"Я загадал число от 1 до 5. Попробуй угадать!")
-    await update.message.reply_text(f"Шутка! Это было {number}")
+    await update.message.reply_text("Я загадал число от 1 до 5... Попробуй угадать!")
+    await update.message.reply_text(f"Хаха, это было: {number}")
 
 if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
     app.add_handler(CommandHandler("start", start))
     app.add_handler(CommandHandler("guess", guess))
-    print("Бот запущен!")
     app.run_polling()
